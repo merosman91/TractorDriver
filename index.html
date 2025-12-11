@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رفيق المزارع - جدولة الجرارات</title>
+    <meta name="theme-color" content="#4CAF50">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root { --primary: #2E7D32; --bg: #f3f4f6; --text: #1f2937; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 80px; }
+        
+        /* Header */
+        header { background-color: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header h1 { margin: 0; font-size: 1.2rem; }
+
+        /* Container */
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+
+        /* Form Card */
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); outline: none; }
+
+        /* Buttons */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-whatsapp { background-color: #25D366; color: white; margin-top: 5px; width: auto; padding: 8px 15px; font-size: 0.9rem; }
+        .btn-delete { background-color: #ef4444; color: white; width: auto; padding: 8px 15px; font-size: 0.9rem; }
+        
+        /* Task List */
+        .task-item { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .task-date { font-size: 0.85rem; color: #666; background: #eee; padding: 3px 8px; border-radius: 4px; }
+        .task-hours { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
+        .actions { display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end; }
+        
+        /* Stats */
+        .stats { display: flex; justify-content: space-between; background: #e8f5e9; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; }
+        
+        /* Install Prompt */
+        #installBtn { display: none; background: #333; color: white; padding: 10px; text-align: center; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🚜 رفيق المزارع</h1>
+</header>
+<div id="installBtn">📲 اضغط هنا لتثبيت التطبيق على هاتفك</div>
+
+<div class="container">
+    <div class="card">
+        <h3 style="margin-top:0">تسجيل عمل جديد</h3>
+        <div class="form-group">
+            <label>اسم الزبون</label>
+            <input type="text" id="customerName" placeholder="مثال: أبو محمد">
+        </div>
+        <div class="form-group">
+            <label>رقم الهاتف (مع مفتاح الدولة)</label>
+            <input type="tel" id="customerPhone" placeholder="مثال: 966500000000">
+        </div>
+        <div class="form-group">
+            <label>التاريخ</label>
+            <input type="date" id="workDate">
+        </div>
+        <div class="form-group">
+            <label>عدد الساعات</label>
+            <input type="number" id="workHours" placeholder="0" step="0.5">
+        </div>
+        <button class="btn btn-primary" onclick="addTask()">💾 حفظ السجل</button>
+    </div>
+
+    <div class="stats">
+        <span>مجموع ساعات اليوم:</span>
+        <span id="totalHoursToday" style="font-weight:bold">0</span>
+    </div>
+
+    <div id="taskList">
+        </div>
+</div>
+
+<script>
+    // 1. إعداد المتغيرات والتهيئة
+    let tasks = JSON.parse(localStorage.getItem('tractorTasks')) || [];
+    document.getElementById('workDate').valueAsDate = new Date(); // تعيين تاريخ اليوم افتراضياً
+
+    // 2. دالة حفظ المهمة
+    function addTask() {
+        const name = document.getElementById('customerName').value;
+        const phone = document.getElementById('customerPhone').value;
+        const date = document.getElementById('workDate').value;
+        const hours = parseFloat(document.getElementById('workHours').value);
+
+        if (!name || !hours || !date) {
+            alert('يرجى تعبئة الاسم والتاريخ وعدد الساعات');
+            return;
+        }
+
+        const task = {
+            id: Date.now(),
+            name,
+            phone,
+            date,
+            hours
+        };
+
+        tasks.unshift(task); // إضافة في البداية
+        saveAndRender();
+        resetForm();
+    }
+
+    // 3. دالة حذف المهمة
+    function deleteTask(id) {
+        if(confirm('هل أنت متأكد من الحذف؟')) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveAndRender();
+        }
+    }
+
+    // 4. الحفظ في الذاكرة وتحديث العرض
+    function saveAndRender() {
+        localStorage.setItem('tractorTasks', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    // 5. دالة المشاركة عبر واتساب
+    function shareWhatsApp(id) {
+        const task = tasks.find(t => t.id === id);
+        if (!task) return;
+
+        const text = `مرحباً ${task.name}،\nتم العمل بالجرار بتاريخ: ${task.date}\nعدد الساعات المنجزة: ${task.hours} ساعات.\nشكراً لك.`;
+        const url = `https://wa.me/${task.phone}?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    }
+
+    // 6. عرض المهام في الشاشة
+    function renderTasks() {
+        const list = document.getElementById('taskList');
+        list.innerHTML = '';
+        
+        let todayHours = 0;
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        tasks.forEach(task => {
+            // حساب ساعات اليوم
+            if(task.date === todayStr) {
+                todayHours += task.hours;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            div.innerHTML = `
+                <div class="task-header">
+                    <strong>👤 ${task.name}</strong>
+                    <span class="task-date">${task.date}</span>
+                </div>
+                <div>⏱️ عدد الساعات: <span class="task-hours">${task.hours}</span></div>
+                ${task.phone ? `<div style="font-size:0.9rem; color:#666; margin-top:5px">📞 ${task.phone}</div>` : ''}
+                <div class="actions">
+                    <button class="btn btn-delete" onclick="deleteTask(${task.id})">🗑️ حذف</button>
+                    <button class="btn btn-whatsapp" onclick="shareWhatsApp(${task.id})">💬 واتساب</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+
+        document.getElementById('totalHoursToday').innerText = todayHours;
+    }
+
+    function resetForm() {
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerPhone').value = '';
+        document.getElementById('workHours').value = '';
+    }
+
+    // تشغيل عند البدء
+    renderTasks();
+
+    // تسجيل Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker Registered'));
+    }
+
+    // منطق زر التثبيت (PWA Install)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installBtn');
+        installBtn.style.display = 'block';
+
+        installBtn.addEventListener('click', () => {
+            installBtn.style.display = 'none';
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                deferredPrompt = null;
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
