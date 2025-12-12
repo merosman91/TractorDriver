@@ -3,205 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رفيق المزارع - جدولة الجرارات</title>
+    <title>رفيق المزارع - المحاسبة</title>
     <meta name="theme-color" content="#4CAF50">
     <link rel="manifest" href="manifest.json">
     <style>
-        :root { --primary: #2E7D32; --bg: #f3f4f6; --text: #1f2937; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 80px; }
+        :root { --primary: #2E7D32; --secondary: #f57c00; --bg: #f3f4f6; --text: #1f2937; --danger: #d32f2f; --info: #0288d1; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 100px; }
         
-        /* Header */
         header { background-color: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        header h1 { margin: 0; font-size: 1.2rem; }
+        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
 
-        /* Container */
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        /* البطاقات والنماذج */
+        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .form-group { flex: 1; margin-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        input:focus, select:focus { border-color: var(--primary); outline: none; }
 
-        /* Form Card */
-        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        input:focus { border-color: var(--primary); outline: none; }
+        /* الأزرار */
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-save { background-color: var(--primary); }
+        .btn-cancel { background-color: #757575; display: none; margin-top: 5px; }
 
-        /* Buttons */
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-whatsapp { background-color: #25D366; color: white; margin-top: 5px; width: auto; padding: 8px 15px; font-size: 0.9rem; }
-        .btn-delete { background-color: #ef4444; color: white; width: auto; padding: 8px 15px; font-size: 0.9rem; }
+        /* شريط البحث */
+        .search-box { margin-bottom: 15px; position: relative; }
+        .search-box input { padding-right: 35px; border-radius: 25px; border: 2px solid var(--primary); }
         
-        /* Task List */
-        .task-item { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-right: 5px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
-        .task-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .task-date { font-size: 0.85rem; color: #666; background: #eee; padding: 3px 8px; border-radius: 4px; }
-        .task-hours { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
-        .actions { display: flex; gap: 10px; margin-top: 10px; justify-content: flex-end; }
+        /* بطاقة التقرير (المهمة) */
+        .task-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 12px; border-right: 6px solid var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .client-name { font-weight: bold; font-size: 1.1rem; color: var(--primary); }
+        .service-badge { background: #e8f5e9; color: var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
         
-        /* Stats */
-        .stats { display: flex; justify-content: space-between; background: #e8f5e9; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #c8e6c9; }
-        
-        /* Install Prompt */
-        #installBtn { display: none; background: #333; color: white; padding: 10px; text-align: center; font-size: 0.9rem; }
+        .card-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.9rem; color: #555; }
+        .detail-item strong { display: block; color: #333; font-size: 0.8rem; }
+        .total-price { color: var(--danger); font-weight: bold; font-size: 1.1rem; }
+
+        /* أزرار الإجراءات */
+        .actions-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 12px; border-top: 1px solid #eee; padding-top: 10px; }
+        .action-btn { background: none; border: 1px solid #ddd; border-radius: 6px; padding: 6px; cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .btn-whatsapp { color: #25D366; border-color: #25D366; }
+        .btn-call { color: var(--info); border-color: var(--info); }
+        .btn-edit { color: var(--secondary); border-color: var(--secondary); }
+        .btn-delete { color: var(--danger); border-color: var(--danger); }
+        .action-btn:active { background: #eee; }
+
+        /* الملخص العائم */
+        .floating-stats { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; font-weight: bold; font-size: 0.9rem; z-index: 900; }
+        .stat-item span { color: var(--primary); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>🚜 رفيق المزارع</h1>
+    <h1>🚜 سجل المزارع</h1>
 </header>
-<div id="installBtn">📲 اضغط هنا لتثبيت التطبيق على هاتفك</div>
 
 <div class="container">
-    <div class="card">
-        <h3 style="margin-top:0">تسجيل عمل جديد</h3>
-        <div class="form-group">
-            <label>اسم الزبون</label>
-            <input type="text" id="customerName" placeholder="مثال: أبو محمد">
-        </div>
-        <div class="form-group">
-            <label>رقم الهاتف (مع مفتاح الدولة)</label>
-            <input type="tel" id="customerPhone" placeholder="مثال: 966500000000">
-        </div>
-        <div class="form-group">
-            <label>التاريخ</label>
-            <input type="date" id="workDate">
-        </div>
-        <div class="form-group">
-            <label>عدد الساعات</label>
-            <input type="number" id="workHours" placeholder="0" step="0.5">
-        </div>
-        <button class="btn btn-primary" onclick="addTask()">💾 حفظ السجل</button>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="بحث باسم العميل (لعرض تقريره)..." oninput="renderTasks()">
+        <span style="position: absolute; right: 10px; top: 10px;">🔍</span>
     </div>
 
-    <div class="stats">
-        <span>مجموع ساعات اليوم:</span>
-        <span id="totalHoursToday" style="font-weight:bold">0</span>
+    <div class="card" id="formCard">
+        <h3 style="margin-top:0" id="formTitle">تسجيل عمل جديد</h3>
+        
+        <div class="form-group">
+            <label>اسم العميل</label>
+            <input type="text" id="clientName" placeholder="الاسم">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>التاريخ</label>
+                <input type="date" id="workDate">
+            </div>
+            <div class="form-group">
+                <label>نوع الخدمة</label>
+                <select id="serviceType">
+                    <option value="حراثة">حراثة</option>
+                    <option value="قصابية">قصابية</option>
+                    <option value="تنعيم">تنعيم</option>
+                    <option value="تخطيط">تخطيط</option>
+                    <option value="أخرى">أخرى</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>عدد الساعات</label>
+                <input type="number" id="workHours" placeholder="0" step="0.5" oninput="calculatePreview()">
+            </div>
+            <div class="form-group">
+                <label>سعر الساعة</label>
+                <input type="number" id="hourlyRate" placeholder="مثلاً: 100" oninput="calculatePreview()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>رقم الهاتف (اختياري)</label>
+            <input type="tel" id="clientPhone" placeholder="05xxxxxxxx">
+        </div>
+
+        <div style="text-align:center; margin-bottom:10px; color:var(--primary); font-weight:bold" id="previewTotal">
+            الإجمالي المتوقع: 0
+        </div>
+
+        <button class="btn btn-save" onclick="saveTask()">💾 حفظ السجل</button>
+        <button class="btn btn-cancel" id="cancelEditBtn" onclick="cancelEdit()">❌ إلغاء التعديل</button>
     </div>
 
-    <div id="taskList">
-        </div>
+    <div id="taskList"></div>
+    <div style="height: 50px;"></div> </div>
+
+<div class="floating-stats">
+    <div class="stat-item">إجمالي المبلغ: <span id="totalMoney">0</span></div>
+    <div class="stat-item">إجمالي الساعات: <span id="totalHours">0</span></div>
 </div>
 
 <script>
-    // 1. إعداد المتغيرات والتهيئة
-    let tasks = JSON.parse(localStorage.getItem('tractorTasks')) || [];
-    document.getElementById('workDate').valueAsDate = new Date(); // تعيين تاريخ اليوم افتراضياً
+    // --- البيانات والمتغيرات ---
+    let tasks = JSON.parse(localStorage.getItem('tractorTasks_v2')) || [];
+    let editingId = null; // لتخزين معرف المهمة التي يتم تعديلها حالياً
 
-    // 2. دالة حفظ المهمة
-    function addTask() {
-        const name = document.getElementById('customerName').value;
-        const phone = document.getElementById('customerPhone').value;
+    // تعيين التاريخ الافتراضي والسعر الافتراضي من آخر عملية
+    document.getElementById('workDate').valueAsDate = new Date();
+    const lastRate = localStorage.getItem('lastHourlyRate');
+    if(lastRate) document.getElementById('hourlyRate').value = lastRate;
+
+    // --- الوظائف الأساسية ---
+
+    // 1. حساب المعاينة السريعة للمبلغ
+    function calculatePreview() {
+        const h = parseFloat(document.getElementById('workHours').value) || 0;
+        const r = parseFloat(document.getElementById('hourlyRate').value) || 0;
+        document.getElementById('previewTotal').innerText = `المبلغ: ${(h * r).toLocaleString()} عملة`;
+    }
+
+    // 2. حفظ (جديد أو تعديل)
+    function saveTask() {
+        const name = document.getElementById('clientName').value.trim();
         const date = document.getElementById('workDate').value;
+        const service = document.getElementById('serviceType').value;
         const hours = parseFloat(document.getElementById('workHours').value);
+        const rate = parseFloat(document.getElementById('hourlyRate').value);
+        const phone = document.getElementById('clientPhone').value;
 
-        if (!name || !hours || !date) {
-            alert('يرجى تعبئة الاسم والتاريخ وعدد الساعات');
+        if (!name || !hours || !rate || !date) {
+            alert('يرجى تعبئة كافة الحقول المطلوبة (الاسم، الساعات، السعر)');
             return;
         }
 
-        const task = {
-            id: Date.now(),
-            name,
-            phone,
-            date,
-            hours
-        };
+        // حفظ السعر الافتراضي للمستقبل
+        localStorage.setItem('lastHourlyRate', rate);
 
-        tasks.unshift(task); // إضافة في البداية
-        saveAndRender();
+        if (editingId) {
+            // حالة التعديل
+            const index = tasks.findIndex(t => t.id === editingId);
+            if (index !== -1) {
+                tasks[index] = { ...tasks[index], name, date, service, hours, rate, phone };
+            }
+            editingId = null;
+            document.getElementById('formTitle').innerText = "تسجيل عمل جديد";
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        } else {
+            // حالة إضافة جديد
+            const newTask = {
+                id: Date.now(),
+                name, date, service, hours, rate, phone
+            };
+            tasks.unshift(newTask);
+        }
+
+        saveToLocal();
         resetForm();
     }
 
-    // 3. دالة حذف المهمة
-    function deleteTask(id) {
-        if(confirm('هل أنت متأكد من الحذف؟')) {
-            tasks = tasks.filter(t => t.id !== id);
-            saveAndRender();
-        }
-    }
-
-    // 4. الحفظ في الذاكرة وتحديث العرض
-    function saveAndRender() {
-        localStorage.setItem('tractorTasks', JSON.stringify(tasks));
-        renderTasks();
-    }
-
-    // 5. دالة المشاركة عبر واتساب
-    function shareWhatsApp(id) {
+    // 3. تحضير التعديل
+    function editTask(id) {
         const task = tasks.find(t => t.id === id);
         if (!task) return;
 
-        const text = `مرحباً ${task.name}،\nتم العمل بالجرار بتاريخ: ${task.date}\nعدد الساعات المنجزة: ${task.hours} ساعات.\nشكراً لك.`;
-        const url = `https://wa.me/${task.phone}?text=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
+        // تعبئة النموذج بالبيانات
+        document.getElementById('clientName').value = task.name;
+        document.getElementById('workDate').value = task.date;
+        document.getElementById('serviceType').value = task.service;
+        document.getElementById('workHours').value = task.hours;
+        document.getElementById('hourlyRate').value = task.rate;
+        document.getElementById('clientPhone').value = task.phone || '';
+
+        // تغيير وضع النموذج
+        editingId = id;
+        document.getElementById('formTitle').innerText = "تعديل سجل: " + task.name;
+        document.getElementById('cancelEditBtn').style.display = 'block';
+        calculatePreview();
+        
+        // الصعود للنموذج
+        document.getElementById('formCard').scrollIntoView({behavior: 'smooth'});
     }
 
-    // 6. عرض المهام في الشاشة
+    function cancelEdit() {
+        editingId = null;
+        resetForm();
+        document.getElementById('formTitle').innerText = "تسجيل عمل جديد";
+        document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    // 4. الحذف
+    function deleteTask(id) {
+        if(confirm('هل أنت متأكد من حذف هذا السجل نهائياً؟')) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveToLocal();
+        }
+    }
+
+    // 5. الوظائف المساعدة (تخزين، مسح، عرض)
+    function saveToLocal() {
+        localStorage.setItem('tractorTasks_v2', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function resetForm() {
+        document.getElementById('clientName').value = '';
+        document.getElementById('workHours').value = '';
+        document.getElementById('clientPhone').value = '';
+        document.getElementById('previewTotal').innerText = 'الإجمالي المتوقع: 0';
+        // لا نمسح السعر ونوع الخدمة لتسهيل الإدخال المتكرر
+    }
+
+    // 6. واتساب والاتصال
+    function openWhatsApp(id) {
+        const t = tasks.find(i => i.id === id);
+        const total = t.hours * t.rate;
+        
+        const text = `📋 *تقرير عمل (جرار زراعي)*%0a` +
+                     `👤 العميل: ${t.name}%0a` +
+                     `📅 التاريخ: ${t.date}%0a` +
+                     `🚜 الخدمة: ${t.service}%0a` +
+                     `⏱ عدد الساعات: ${t.hours} ساعة%0a` +
+                     `💰 السعر للساعة: ${t.rate}%0a` +
+                     `------------------%0a` +
+                     `💵 *المبلغ المطلوب: ${total.toLocaleString()}*`;
+        
+        const number = t.phone ? t.phone.replace(/[^0-9]/g, '') : ''; 
+        // إذا لم يوجد رقم، يفتح التطبيق لاختيار جهة اتصال
+        window.open(`https://wa.me/${number}?text=${text}`, '_blank');
+    }
+
+    function callClient(phone) {
+        if (!phone) {
+            alert('لا يوجد رقم هاتف مسجل لهذا العميل');
+            return;
+        }
+        window.open(`tel:${phone}`);
+    }
+
+    // 7. العرض والفلترة (Render)
     function renderTasks() {
         const list = document.getElementById('taskList');
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
         list.innerHTML = '';
         
-        let todayHours = 0;
-        const todayStr = new Date().toISOString().split('T')[0];
+        let grandTotalMoney = 0;
+        let grandTotalHours = 0;
 
-        tasks.forEach(task => {
-            // حساب ساعات اليوم
-            if(task.date === todayStr) {
-                todayHours += task.hours;
-            }
+        // تصفية المهام بناء على البحث
+        const filteredTasks = tasks.filter(t => t.name.toLowerCase().includes(searchTerm));
+
+        filteredTasks.forEach(t => {
+            const totalPrice = t.hours * t.rate;
+            grandTotalMoney += totalPrice;
+            grandTotalHours += t.hours;
 
             const div = document.createElement('div');
-            div.className = 'task-item';
+            div.className = 'task-card';
             div.innerHTML = `
-                <div class="task-header">
-                    <strong>👤 ${task.name}</strong>
-                    <span class="task-date">${task.date}</span>
+                <div class="card-header">
+                    <div>
+                        <div class="client-name">${t.name}</div>
+                        <span style="font-size:0.8rem; color:#888">${t.date}</span>
+                    </div>
+                    <span class="service-badge">${t.service}</span>
                 </div>
-                <div>⏱️ عدد الساعات: <span class="task-hours">${task.hours}</span></div>
-                ${task.phone ? `<div style="font-size:0.9rem; color:#666; margin-top:5px">📞 ${task.phone}</div>` : ''}
-                <div class="actions">
-                    <button class="btn btn-delete" onclick="deleteTask(${task.id})">🗑️ حذف</button>
-                    <button class="btn btn-whatsapp" onclick="shareWhatsApp(${task.id})">💬 واتساب</button>
+                
+                <div class="card-details">
+                    <div class="detail-item"><strong>الساعات</strong>${t.hours} ساعة</div>
+                    <div class="detail-item"><strong>السعر/ساعة</strong>${t.rate}</div>
+                    <div class="detail-item" style="grid-column: span 2; margin-top:5px">
+                        <strong>الإجمالي المطلوب</strong>
+                        <span class="total-price">${totalPrice.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <div class="actions-bar">
+                    <button class="action-btn btn-call" onclick="callClient('${t.phone}')" title="اتصال">📞</button>
+                    <button class="action-btn btn-whatsapp" onclick="openWhatsApp(${t.id})" title="واتساب">💬</button>
+                    <button class="action-btn btn-edit" onclick="editTask(${t.id})" title="تعديل">✏️</button>
+                    <button class="action-btn btn-delete" onclick="deleteTask(${t.id})" title="حذف">🗑️</button>
                 </div>
             `;
             list.appendChild(div);
         });
 
-        document.getElementById('totalHoursToday').innerText = todayHours;
+        // تحديث الشريط السفلي
+        document.getElementById('totalMoney').innerText = grandTotalMoney.toLocaleString();
+        document.getElementById('totalHours').innerText = grandTotalHours;
+        
+        // إذا كان هناك بحث، نظهر رسالة ملخص
+        if (searchTerm) {
+            document.querySelector('.floating-stats').style.backgroundColor = '#e3f2fd';
+        } else {
+            document.querySelector('.floating-stats').style.backgroundColor = 'white';
+        }
     }
 
-    function resetForm() {
-        document.getElementById('customerName').value = '';
-        document.getElementById('customerPhone').value = '';
-        document.getElementById('workHours').value = '';
-    }
-
-    // تشغيل عند البدء
+    // التشغيل الأولي
     renderTasks();
-
-    // تسجيل Service Worker
+    
+    // Service Worker
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker Registered'));
+        navigator.serviceWorker.register('sw.js');
     }
-
-    // منطق زر التثبيت (PWA Install)
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const installBtn = document.getElementById('installBtn');
-        installBtn.style.display = 'block';
-
-        installBtn.addEventListener('click', () => {
-            installBtn.style.display = 'none';
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                deferredPrompt = null;
-            });
-        });
-    });
 </script>
 
 </body>
