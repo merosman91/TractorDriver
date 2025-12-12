@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2674/2674486.png",
-      "sizes": "192x192",
+      "src": "icon512.png",
+      "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2674/2674486.png",
+      "src": "icon512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
