@@ -3,6 +3,7 @@ const ASSETS = [
     './',
     './index.html',
     './manifest.json'
+    './icon512.png'
     // أضف مسار الأيقونة هنا إذا قمت بتحميلها محلياً
 ];
 
