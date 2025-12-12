@@ -4,356 +4,1285 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاسب التراكتور الزراعي الاحترافي</title>
-    <!-- Tailwind CSS أوفلاين -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* إعدادات تخصيص إضافية */
-        :root {
-            --primary: #2e7d32;
-            --accent: #f57c00;
-            --danger: #d93025;
+        :root { --primary: #2e7d32; --accent: #f57c00; --danger: #d93025; }
+        
+        /* تأثيرات مخصصة */
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .glow { box-shadow: 0 0 15px rgba(46, 125, 50, 0.3); }
+        
+        /* تخصيصات التبويبات */
+        .tab-active {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+            position: relative;
         }
         
-        .btn-whatsapp {
-            background: #25D366;
+        .tab-active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 20px;
+            height: 4px;
+            background: white;
+            border-radius: 2px;
         }
         
-        .btn-call {
-            background: #0288d1;
+        /* تخصيصات الجدول */
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
         }
         
-        /* تخصيصات إضافية */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .table-hover tbody tr:hover {
+            background-color: #f0f7f0;
         }
     </style>
-    <!-- إضافة أيقونات -->
+    <!-- Font Awesome للأيقونات -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans" dir="rtl">
-
-<!-- الهيدر -->
-<header class="bg-green-700 text-white p-4 shadow-lg sticky top-0 z-50">
-    <div class="container mx-auto flex items-center justify-between">
-        <div class="flex items-center space-x-3 space-x-reverse">
-            <i class="fas fa-tractor text-2xl"></i>
-            <h1 class="text-xl font-bold">محاسب التراكتور الزراعي</h1>
-        </div>
-        <button id="backupBtn" class="bg-green-800 hover:bg-green-900 text-white px-4 py-2 rounded-lg text-sm transition">
-            <i class="fas fa-database mr-2"></i>النسخ الاحتياطي
-        </button>
-    </div>
-</header>
-
-<!-- لوحة الإحصائيات -->
-<div class="container mx-auto p-4">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <!-- إجمالي العمل -->
-        <div class="bg-white rounded-xl shadow p-5 text-center border-r-4 border-green-500">
-            <div class="text-gray-500 text-sm mb-2">
-                <i class="fas fa-money-bill-wave mr-2"></i>إجمالي العمل
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen" dir="rtl">
+    <!-- الهيدر -->
+    <header class="bg-gradient-to-r from-green-700 to-green-800 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <i class="fas fa-tractor text-3xl"></i>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold">🚜 محاسب التراكتور الزراعي</h1>
+                    <p class="text-green-200 text-xs md:text-sm">نظام محاسبة متكامل للمزارعين</p>
+                </div>
             </div>
-            <div id="statIncome" class="text-3xl font-bold text-green-600">0</div>
-            <div class="text-xs text-gray-400 mt-2">دينار</div>
-        </div>
-        
-        <!-- إجمالي المصاريف -->
-        <div class="bg-white rounded-xl shadow p-5 text-center border-r-4 border-orange-500">
-            <div class="text-gray-500 text-sm mb-2">
-                <i class="fas fa-gas-pump mr-2"></i>إجمالي المصاريف
-            </div>
-            <div id="statExpense" class="text-3xl font-bold text-orange-600">0</div>
-            <div class="text-xs text-gray-400 mt-2">دينار</div>
-        </div>
-        
-        <!-- صافي الربح -->
-        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow p-5 text-center text-white">
-            <div class="text-green-100 text-sm mb-2">
-                <i class="fas fa-chart-line mr-2"></i>صافي الربح
-            </div>
-            <div id="statNet" class="text-3xl font-bold">0</div>
-            <div class="text-xs text-green-200 mt-2">دينار</div>
-        </div>
-    </div>
-
-    <!-- التبويبات -->
-    <div class="bg-white rounded-xl shadow mb-6 overflow-hidden">
-        <div class="flex border-b">
-            <button onclick="switchTab('work')" 
-                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
-                    id="tabWork">
-                <i class="fas fa-tractor mr-2"></i>أعمال الميدان
-            </button>
-            <button onclick="switchTab('expenses')" 
-                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
-                    id="tabExpenses">
-                <i class="fas fa-gas-pump mr-2"></i>المصاريف
-            </button>
-            <button onclick="switchTab('history')" 
-                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
-                    id="tabHistory">
-                <i class="fas fa-users mr-2"></i>سجل الزبائن
-            </button>
-            <button onclick="switchTab('backup')" 
-                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
-                    id="tabBackup">
+            <button onclick="switchTab('backup')" class="bg-green-900 hover:bg-green-950 text-white px-4 py-2 rounded-lg text-sm transition-all duration-300 transform hover:scale-105 flex items-center">
                 <i class="fas fa-database mr-2"></i>النسخ الاحتياطي
             </button>
         </div>
-    </div>
+    </header>
 
-    <!-- محتوى التبويبات -->
-    <div id="workSection" class="tab-content">
-        <!-- ... محتوى قسم الأعمال ... -->
-    </div>
-
-    <div id="expensesSection" class="tab-content hidden">
-        <!-- ... محتوى قسم المصاريف ... -->
-    </div>
-
-    <div id="historySection" class="tab-content hidden">
-        <!-- ... محتوى قسم السجل ... -->
-    </div>
-
-    <!-- قسم النسخ الاحتياطي الجديد -->
-    <div id="backupSection" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow p-6 mb-4">
-            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                <i class="fas fa-database text-green-600 mr-3"></i>نظام النسخ الاحتياطي والاستعادة
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- تصدير البيانات -->
-                <div class="border border-gray-200 rounded-lg p-5">
-                    <h4 class="font-bold text-lg mb-4 text-gray-700">
-                        <i class="fas fa-download text-blue-600 mr-2"></i>تصدير البيانات
-                    </h4>
-                    <p class="text-gray-600 mb-4 text-sm">
-                        قم بتحميل نسخة احتياطية من جميع بياناتك لتخزينها بأمان.
-                    </p>
-                    <button onclick="exportData()" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
-                        <i class="fas fa-file-export mr-2"></i>تصدير كملف JSON
-                    </button>
-                    <button onclick="exportCSV()" 
-                            class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
-                        <i class="fas fa-file-csv mr-2"></i>تصدير كملف Excel
-                    </button>
+    <!-- الإحصائيات -->
+    <div class="container mx-auto p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- إجمالي العمل -->
+            <div class="bg-white rounded-2xl shadow-lg p-5 text-center border-r-4 border-green-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div class="text-gray-500 text-sm mb-2 flex items-center justify-center">
+                    <i class="fas fa-money-bill-wave mr-2"></i>إجمالي العمل
                 </div>
-                
-                <!-- استيراد البيانات -->
-                <div class="border border-gray-200 rounded-lg p-5">
-                    <h4 class="font-bold text-lg mb-4 text-gray-700">
-                        <i class="fas fa-upload text-purple-600 mr-2"></i>استيراد البيانات
-                    </h4>
-                    <p class="text-gray-600 mb-4 text-sm">
-                        استرجع البيانات من نسخة احتياطية سابقة.
-                    </p>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2">اختر ملف النسخ الاحتياطي</label>
-                        <input type="file" id="importFile" accept=".json,.txt" 
-                               class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <button onclick="importData()" 
-                            class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
-                        <i class="fas fa-file-import mr-2"></i>استيراد البيانات
-                    </button>
-                </div>
+                <div id="statIncome" class="text-3xl md:text-4xl font-bold text-green-600 animate-pulse">0</div>
+                <div class="text-xs text-gray-400 mt-2">دينار</div>
             </div>
             
-            <!-- إحصائيات النسخ الاحتياطي -->
-            <div class="mt-8 p-5 bg-gray-50 rounded-lg">
-                <h4 class="font-bold text-lg mb-4 text-gray-700">معلومات التخزين</h4>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="text-center p-3 bg-white rounded-lg shadow">
-                        <div class="text-2xl font-bold text-blue-600" id="backupCount">0</div>
-                        <div class="text-sm text-gray-500">عدد السجلات</div>
+            <!-- إجمالي المصاريف -->
+            <div class="bg-white rounded-2xl shadow-lg p-5 text-center border-r-4 border-orange-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div class="text-gray-500 text-sm mb-2 flex items-center justify-center">
+                    <i class="fas fa-gas-pump mr-2"></i>إجمالي المصاريف
+                </div>
+                <div id="statExpense" class="text-3xl md:text-4xl font-bold text-orange-600">0</div>
+                <div class="text-xs text-gray-400 mt-2">دينار</div>
+            </div>
+            
+            <!-- صافي الربح -->
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-lg p-5 text-center text-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1 glow">
+                <div class="text-green-100 text-sm mb-2 flex items-center justify-center">
+                    <i class="fas fa-chart-line mr-2"></i>صافي الربح
+                </div>
+                <div id="statNet" class="text-3xl md:text-4xl font-bold">0</div>
+                <div class="text-xs text-green-200 mt-2">دينار</div>
+            </div>
+        </div>
+
+        <!-- التبويبات -->
+        <div class="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
+            <div class="flex flex-wrap border-b">
+                <button onclick="switchTab('work')" class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all hover:bg-gray-50" id="tabWork">
+                    <i class="fas fa-tractor mr-2"></i>أعمال الميدان
+                </button>
+                <button onclick="switchTab('expenses')" class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all hover:bg-gray-50" id="tabExpenses">
+                    <i class="fas fa-gas-pump mr-2"></i>المصاريف
+                </button>
+                <button onclick="switchTab('history')" class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all hover:bg-gray-50" id="tabHistory">
+                    <i class="fas fa-users mr-2"></i>سجل الزبائن
+                </button>
+                <button onclick="switchTab('backup')" class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all hover:bg-gray-50" id="tabBackup">
+                    <i class="fas fa-database mr-2"></i>النسخ الاحتياطي
+                </button>
+            </div>
+        </div>
+
+        <!-- محتوى التبويبات -->
+        
+        <!-- تبويب أعمال الميدان -->
+        <div id="workSection" class="tab-content fade-in">
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-plus-circle text-green-600 mr-3"></i>تسجيل يوم عمل جديد
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>اسم الزبون
+                        </label>
+                        <input type="text" id="clientName" placeholder="ابحث أو أضف اسم جديد" list="namesList"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                        <datalist id="namesList"></datalist>
                     </div>
-                    <div class="text-center p-3 bg-white rounded-lg shadow">
-                        <div class="text-2xl font-bold text-green-600" id="storageSize">0 KB</div>
-                        <div class="text-sm text-gray-500">حجم التخزين</div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar mr-2"></i>التاريخ
+                        </label>
+                        <input type="date" id="workDate"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2"></i>المكان
+                        </label>
+                        <input type="text" id="workLoc" placeholder="المزرعة / المنطقة"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-cogs mr-2"></i>نوع الخدمة
+                        </label>
+                        <select id="serviceType"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            <option>حراثة</option>
+                            <option>قصابية</option>
+                            <option>نقل</option>
+                            <option>تنعيم</option>
+                            <option>سقي</option>
+                            <option>حصاد</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-clock mr-2"></i>عدد الساعات
+                        </label>
+                        <input type="number" id="workHours" step="0.5" min="0.5" max="24" oninput="calculateTotal()"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tag mr-2"></i>سعر الساعة (دينار)
+                        </label>
+                        <input type="number" id="hourPrice" min="0" oninput="calculateTotal()"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-money-check-alt mr-2"></i>حالة الدفع
+                        </label>
+                        <select id="payStatus"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            <option value="أجل">أجل (دين)</option>
+                            <option value="مقدم">خالص</option>
+                            <option value="نصف">نصف المبلغ</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-money-bill mr-2"></i>المبلغ الإجمالي
+                        </label>
+                        <input type="text" id="totalAmount" readonly
+                               class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg font-bold text-green-600 text-lg">
                     </div>
                 </div>
-                <div class="mt-4 text-sm text-gray-500">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    يتم تخزين البيانات محلياً في متصفحك. قم بعمل نسخة احتياطية دورياً.
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-phone mr-2"></i>هاتف الزبون (اختياري)
+                    </label>
+                    <input type="tel" id="clientPhone" placeholder="05xxxxxxxx"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-sticky-note mr-2"></i>ملاحظات إضافية (اختياري)
+                    </label>
+                    <textarea id="workNotes" rows="2" placeholder="أي ملاحظات إضافية..."
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition"></textarea>
+                </div>
+                
+                <button onclick="addWork()" 
+                        class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center">
+                    <i class="fas fa-save mr-3 text-xl"></i>
+                    حفظ يوم العمل
+                </button>
+            </div>
+            
+            <!-- آخر العمليات المسجلة -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-history text-blue-600 mr-3"></i>آخر العمليات المسجلة
+                </h3>
+                <div id="recentWork" class="overflow-x-auto">
+                    <!-- سيتم تعبئتها بالـ JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب المصاريف -->
+        <div id="expensesSection" class="tab-content hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-plus-circle text-orange-600 mr-3"></i>تسجيل مصروف جديد
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-calendar mr-2"></i>التاريخ
+                        </label>
+                        <input type="date" id="expDate"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tags mr-2"></i>نوع المصروف
+                        </label>
+                        <select id="expType"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                            <option value="ديزل">⛽ ديزل</option>
+                            <option value="زيت">🛢️ زيت محرك</option>
+                            <option value="صيانة">🔧 صيانة</option>
+                            <option value="قطع غيار">⚙️ قطع غيار</option>
+                            <option value="عمال">👷 أجور عمال</option>
+                            <option value="أخرى">📝 مصاريف أخرى</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-money-bill mr-2"></i>المبلغ (دينار)
+                        </label>
+                        <input type="number" id="expAmount" min="0" step="0.01"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-sticky-note mr-2"></i>تفاصيل إضافية (اختياري)
+                        </label>
+                        <input type="text" id="expDetails" placeholder="مثال: 100 لتر ديزل من محطة..."
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition">
+                    </div>
+                </div>
+                
+                <button onclick="addExpense()" 
+                        class="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center">
+                    <i class="fas fa-plus-circle mr-3 text-xl"></i>
+                    إضافة مصروف
+                </button>
+            </div>
+            
+            <!-- قائمة المصاريف -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-list-alt text-red-600 mr-3"></i>سجل المصاريف
+                </h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-medium text-gray-700">إجمالي المصاريف: <span id="totalExpenses" class="text-red-600 font-bold">0</span> دينار</h4>
+                    <button onclick="clearExpenses()" class="text-sm bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg transition">
+                        <i class="fas fa-trash-alt mr-1"></i>حذف الكل
+                    </button>
+                </div>
+                <div id="expList" class="space-y-3 max-h-96 overflow-y-auto p-2">
+                    <!-- سيتم تعبئتها بالـ JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب سجل الزبائن -->
+        <div id="historySection" class="tab-content hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-users text-purple-600 mr-3"></i>سجل الزبائن
+                    </h3>
+                    
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" id="searchClient" placeholder="🔍 بحث باسم الزبون..." oninput="renderHistory()"
+                                   class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition">
+                            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                        </div>
+                        <button onclick="exportAllClients()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg transition">
+                            <i class="fas fa-file-export"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <div class="text-blue-700 text-sm mb-1">إجمالي الزبائن</div>
+                        <div id="totalClients" class="text-2xl font-bold text-blue-800">0</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-200">
+                        <div class="text-green-700 text-sm mb-1">زبائن سددوا كامل المبلغ</div>
+                        <div id="paidClients" class="text-2xl font-bold text-green-800">0</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-200">
+                        <div class="text-red-700 text-sm mb-1">زبائن مدينين</div>
+                        <div id="debtClients" class="text-2xl font-bold text-red-800">0</div>
+                    </div>
+                </div>
+                
+                <div id="clientHistoryList" class="space-y-4">
+                    <!-- سيتم تعبئتها بالـ JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- تبويب النسخ الاحتياطي -->
+        <div id="backupSection" class="tab-content hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-database text-green-600 mr-3"></i>نظام النسخ الاحتياطي والاستعادة
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- تصدير البيانات -->
+                    <div class="border-2 border-gray-200 rounded-xl p-5 hover:border-blue-300 transition">
+                        <h4 class="font-bold text-lg mb-4 text-gray-700">
+                            <i class="fas fa-download text-blue-600 mr-2"></i>تصدير البيانات
+                        </h4>
+                        <p class="text-gray-600 mb-4 text-sm">
+                            قم بتحميل نسخة احتياطية من جميع بياناتك لتخزينها بأمان على جهازك.
+                        </p>
+                        <button onclick="exportData()" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center mb-3">
+                            <i class="fas fa-file-export mr-2"></i>تصدير كملف JSON
+                        </button>
+                        <button onclick="exportCSV()" 
+                                class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center">
+                            <i class="fas fa-file-csv mr-2"></i>تصدير كملف Excel
+                        </button>
+                    </div>
+                    
+                    <!-- استيراد البيانات -->
+                    <div class="border-2 border-gray-200 rounded-xl p-5 hover:border-purple-300 transition">
+                        <h4 class="font-bold text-lg mb-4 text-gray-700">
+                            <i class="fas fa-upload text-purple-600 mr-2"></i>استيراد البيانات
+                        </h4>
+                        <p class="text-gray-600 mb-4 text-sm">
+                            استرجع البيانات من نسخة احتياطية سابقة أو من جهاز آخر.
+                        </p>
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-medium mb-2">اختر ملف النسخ الاحتياطي</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition cursor-pointer"
+                                 onclick="document.getElementById('importFile').click()">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-500 text-sm">انقر لاختيار ملف أو اسحب الملف هنا</p>
+                                <p class="text-gray-400 text-xs mt-1">يجب أن يكون الملف بصيغة JSON</p>
+                                <input type="file" id="importFile" accept=".json,.txt" class="hidden">
+                            </div>
+                            <div id="selectedFileName" class="text-sm text-gray-600 mt-2 text-center"></div>
+                        </div>
+                        <button onclick="importData()" 
+                                class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center">
+                            <i class="fas fa-file-import mr-2"></i>استيراد البيانات
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- إحصائيات النسخ الاحتياطي -->
+                <div class="mt-8 p-5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                    <h4 class="font-bold text-lg mb-4 text-gray-700">معلومات التخزين والإحصائيات</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <div class="text-center p-4 bg-white rounded-lg shadow">
+                            <div class="text-2xl font-bold text-blue-600" id="backupCount">0</div>
+                            <div class="text-sm text-gray-500">عدد السجلات</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow">
+                            <div class="text-2xl font-bold text-green-600" id="storageSize">0 KB</div>
+                            <div class="text-sm text-gray-500">حجم التخزين</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow">
+                            <div class="text-2xl font-bold text-purple-600" id="lastBackup">---</div>
+                            <div class="text-sm text-gray-500">آخر نسخة احتياطية</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow">
+                            <div class="text-2xl font-bold text-orange-600" id="autoBackups">0</div>
+                            <div class="text-sm text-gray-500">نسخ تلقائية</div>
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-600 bg-white p-4 rounded-lg">
+                        <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                        يتم تخزين البيانات محلياً في متصفحك. قم بعمل نسخة احتياطية دورياً لحماية بياناتك من الفقدان.
+                        <button onclick="toggleAutoBackup()" id="autoBackupToggle" class="mr-2 text-blue-600 hover:text-blue-800 font-medium">
+                            <i class="fas fa-robot mr-1"></i>تفعيل النسخ التلقائي
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- النسخ الاحتياطية المحفوظة -->
+                <div class="mt-6 p-5 bg-white rounded-xl shadow">
+                    <h4 class="font-bold text-lg mb-4 text-gray-700">
+                        <i class="fas fa-history text-gray-600 mr-2"></i>النسخ الاحتياطية المحفوظة
+                    </h4>
+                    <div id="savedBackups" class="space-y-3 max-h-60 overflow-y-auto p-2">
+                        <!-- سيتم تعبئتها بالـ JavaScript -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- نافذة النسخ الاحتياطي -->
-<div id="backupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-auto">
-        <!-- ... محتوى النافذة ... -->
-    </div>
-</div>
-
-<script>
-    // وظائف النسخ الاحتياطي
-    function exportData() {
-        const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
-        
-        // إضافة معلومات إضافية
-        const exportData = {
-            ...data,
-            _exportInfo: {
-                date: new Date().toISOString(),
-                version: "2.0",
-                totalRecords: data.work.length + data.expenses.length
-            }
-        };
-        
-        const dataStr = JSON.stringify(exportData, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tractor_backup_${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showNotification('تم تصدير البيانات بنجاح', 'success');
-    }
-    
-    function exportCSV() {
-        const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
-        
-        // تحويل أعمال الميدان إلى CSV
-        let csvContent = "تاريخ,الزبون,الخدمة,المكان,الساعات,سعر الساعة,المبلغ,الحالة,الهاتف\n";
-        
-        data.work.forEach(work => {
-            const row = [
-                work.date,
-                `"${work.name}"`,
-                work.service,
-                work.location,
-                work.hours,
-                work.price,
-                work.hours * work.price,
-                work.payStatus,
-                work.phone || ''
-            ].join(',');
-            csvContent += row + '\n';
-        });
-        
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tractor_work_${new Date().toISOString().slice(0,10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showNotification('تم تصدير ملف Excel بنجاح', 'success');
-    }
-    
-    function importData() {
-        const fileInput = document.getElementById('importFile');
-        const file = fileInput.files[0];
-        
-        if (!file) {
-            showNotification('يرجى اختيار ملف', 'error');
-            return;
-        }
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const importedData = JSON.parse(e.target.result);
-                
-                // التحقق من صحة البيانات
-                if (!importedData.work || !importedData.expenses) {
-                    throw new Error('تنسيق الملف غير صالح');
-                }
-                
-                if (confirm(`هل تريد استيراد البيانات؟\nالأعمال: ${importedData.work.length}\nالمصاريف: ${importedData.expenses.length}`)) {
-                    localStorage.setItem('tractor_final_db', JSON.stringify(importedData));
-                    location.reload();
-                }
-            } catch (error) {
-                showNotification('خطأ في استيراد الملف: ' + error.message, 'error');
-            }
-        };
-        
-        reader.readAsText(file);
-    }
-    
-    function showNotification(message, type = 'info') {
-        // إنشاء إشعار باستخدام Tailwind
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
-            type === 'success' ? 'bg-green-600' : 
-            type === 'error' ? 'bg-red-600' : 'bg-blue-600'
-        }`;
-        notification.innerHTML = `
-            <div class="flex items-center">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-3"></i>
-                <span>${message}</span>
+    <!-- نافذة تفاصيل الزبون -->
+    <div id="clientDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-6 border-b">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-800" id="modalClientName">تفاصيل الزبون</h3>
+                    <button onclick="closeClientModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
             </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
-    }
-    
-    // تحديث إحصائيات النسخ الاحتياطي
-    function updateBackupStats() {
-        const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
-        const totalRecords = data.work.length + data.expenses.length;
-        const storageSize = JSON.stringify(data).length;
-        
-        document.getElementById('backupCount').textContent = totalRecords.toLocaleString();
-        document.getElementById('storageSize').textContent = `${(storageSize / 1024).toFixed(2)} KB`;
-    }
-    
-    // نسخ احتياطي تلقائي
-    function autoBackup() {
-        const lastBackup = localStorage.getItem('last_auto_backup');
-        const today = new Date().toDateString();
-        
-        if (lastBackup !== today) {
-            const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
-            localStorage.setItem(`backup_${Date.now()}`, JSON.stringify(data));
-            localStorage.setItem('last_auto_backup', today);
+            <div class="p-6 overflow-y-auto max-h-[70vh]" id="modalClientContent">
+                <!-- سيتم تعبئتها بالـ JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white p-6 mt-8">
+        <div class="container mx-auto text-center">
+            <p class="mb-2">🚜 <span class="font-bold">محاسب التراكتور الزراعي</span> - نظام محاسبة متكامل للمزارعين</p>
+            <p class="text-gray-400 text-sm">© 2024 جميع الحقوق محفوظة | يعمل دون اتصال بالإنترنت</p>
+            <div class="mt-4 flex justify-center space-x-4 space-x-reverse">
+                <a href="#" class="text-gray-300 hover:text-white transition">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+                <a href="#" class="text-gray-300 hover:text-white transition">
+                    <i class="fas fa-phone"></i>
+                </a>
+                <a href="#" class="text-gray-300 hover:text-white transition">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // البيانات الأساسية
+        let data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
+        let autoBackupEnabled = localStorage.getItem('auto_backup_enabled') === 'true';
+
+        // تهيئة التواريخ
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('workDate').value = today;
+            document.getElementById('expDate').value = today;
             
-            // الاحتفاظ بـ 7 نسخ فقط
-            cleanupOldBackups();
-        }
-    }
-    
-    function cleanupOldBackups() {
-        const backups = Object.keys(localStorage).filter(key => key.startsWith('backup_'));
-        if (backups.length > 7) {
-            backups.sort().slice(0, backups.length - 7).forEach(key => {
-                localStorage.removeItem(key);
+            updateDashboard();
+            updateBackupStats();
+            renderRecentWork();
+            initTabs();
+            setupEventListeners();
+            
+            // تفعيل النسخ التلقائي إذا كان مفعل
+            if (autoBackupEnabled) {
+                document.getElementById('autoBackupToggle').innerHTML = '<i class="fas fa-robot mr-1"></i>إيقاف النسخ التلقائي';
+                autoBackup();
+            }
+        });
+
+        // دالة تبديل التبويبات
+        function switchTab(tab) {
+            // إخفاء جميع المحتويات
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('fade-in');
             });
+            
+            // إزالة النشاط من جميع الأزرار
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.remove('bg-green-600', 'text-white');
+                btn.classList.add('text-gray-600');
+            });
+            
+            // إظهار المحتوى المطلوب
+            document.getElementById(tab + 'Section').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById(tab + 'Section').classList.add('fade-in');
+            }, 10);
+            
+            // تفعيل الزر المحدد
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('tab-active');
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('bg-green-600', 'text-white');
+            document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('text-gray-600');
+            
+            // تحميل البيانات الخاصة بكل تبويب
+            if (tab === 'history') {
+                renderHistory();
+                updateClientStats();
+            } else if (tab === 'expenses') {
+                renderExpenses();
+            } else if (tab === 'backup') {
+                updateBackupStats();
+                renderSavedBackups();
+            }
         }
-    }
-    
-    // تهيئة عند التحميل
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBackupStats();
-        autoBackup();
+
+        // دالة إضافة عمل جديد
+        function addWork() {
+            const entry = {
+                id: Date.now(),
+                name: document.getElementById('clientName').value.trim(),
+                date: document.getElementById('workDate').value,
+                location: document.getElementById('workLoc').value,
+                service: document.getElementById('serviceType').value,
+                hours: parseFloat(document.getElementById('workHours').value) || 0,
+                price: parseFloat(document.getElementById('hourPrice').value) || 0,
+                payStatus: document.getElementById('payStatus').value,
+                phone: document.getElementById('clientPhone').value,
+                notes: document.getElementById('workNotes').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // التحقق من البيانات
+            if (!entry.name || entry.name.length < 2) {
+                showNotification('يرجى إدخال اسم الزبون', 'error');
+                document.getElementById('clientName').focus();
+                return;
+            }
+            
+            if (!entry.hours || entry.hours <= 0) {
+                showNotification('يرجى إدخال عدد ساعات صحيح', 'error');
+                document.getElementById('workHours').focus();
+                return;
+            }
+            
+            if (!entry.price || entry.price <= 0) {
+                showNotification('يرجى إدخال سعر ساعة صحيح', 'error');
+                document.getElementById('hourPrice').focus();
+                return;
+            }
+
+            data.work.push(entry);
+            save();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('clientName').value = '';
+            document.getElementById('workHours').value = '';
+            document.getElementById('hourPrice').value = '';
+            document.getElementById('clientPhone').value = '';
+            document.getElementById('workNotes').value = '';
+            document.getElementById('totalAmount').value = '0';
+            
+            showNotification('تم حفظ يوم العمل بنجاح!', 'success');
+            updateDashboard();
+            renderRecentWork();
+            
+            // إذا كان التبويب النشط هو سجل الزبائن، قم بتحديثه
+            if (!document.getElementById('historySection').classList.contains('hidden')) {
+                renderHistory();
+            }
+        }
+
+        // دالة إضافة مصروف
+        function addExpense() {
+            const exp = {
+                id: Date.now(),
+                date: document.getElementById('expDate').value,
+                type: document.getElementById('expType').value,
+                amount: parseFloat(document.getElementById('expAmount').value) || 0,
+                details: document.getElementById('expDetails').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (!exp.amount || exp.amount <= 0) {
+                showNotification('يرجى إدخال مبلغ المصروف', 'error');
+                return;
+            }
+            
+            data.expenses.push(exp);
+            save();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('expAmount').value = '';
+            document.getElementById('expDetails').value = '';
+            
+            showNotification('تم إضافة المصروف بنجاح!', 'success');
+            updateDashboard();
+            renderExpenses();
+        }
+
+        // دالة حفظ البيانات
+        function save() {
+            localStorage.setItem('tractor_final_db', JSON.stringify(data));
+            updateDashboard();
+            
+            // نسخ احتياطي تلقائي إذا كان مفعل
+            if (autoBackupEnabled) {
+                autoBackup();
+            }
+        }
+
+        // دالة تحديث لوحة الإحصائيات
+        function updateDashboard() {
+            const income = data.work.reduce((s, w) => s + (w.hours * w.price), 0);
+            const expenses = data.expenses.reduce((s, e) => s + e.amount, 0);
+            
+            document.getElementById('statIncome').innerText = income.toLocaleString();
+            document.getElementById('statExpense').innerText = expenses.toLocaleString();
+            document.getElementById('statNet').innerText = (income - expenses).toLocaleString();
+            
+            // تحديث قائمة الأسماء المقترحة
+            const names = [...new Set(data.work.map(w => w.name))];
+            document.getElementById('namesList').innerHTML = names.map(n => `<option value="${n}">`).join('');
+            
+            // تحديث إجمالي المصاريف في تبويب المصاريف
+            document.getElementById('totalExpenses').innerText = expenses.toLocaleString();
+        }
+
+        // دالة حساب المبلغ الإجمالي
+        function calculateTotal() {
+            const hours = parseFloat(document.getElementById('workHours').value) || 0;
+            const price = parseFloat(document.getElementById('hourPrice').value) || 0;
+            const total = hours * price;
+            
+            document.getElementById('totalAmount').value = total.toLocaleString();
+        }
+
+        // دالة عرض آخر العمليات
+        function renderRecentWork() {
+            const container = document.getElementById('recentWork');
+            const recentWork = data.work.slice(-5).reverse();
+            
+            if (recentWork.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-8 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p>لا توجد عمليات مسجلة بعد</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full table-auto table-striped table-hover">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-right">الزبون</th>
+                                <th class="px-4 py-3 text-right">الخدمة</th>
+                                <th class="px-4 py-3 text-right">الساعات</th>
+                                <th class="px-4 py-3 text-right">المبلغ</th>
+                                <th class="px-4 py-3 text-right">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            recentWork.forEach(work => {
+                const total = work.hours * work.price;
+                const statusColor = work.payStatus === 'أجل' ? 'bg-red-100 text-red-800' : 
+                                  work.payStatus === 'نصف' ? 'bg-yellow-100 text-yellow-800' : 
+                                  'bg-green-100 text-green-800';
+                
+                html += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 border-b">${work.name}</td>
+                        <td class="px-4 py-3 border-b">${work.service}</td>
+                        <td class="px-4 py-3 border-b">${work.hours}</td>
+                        <td class="px-4 py-3 border-b font-bold">${total.toLocaleString()}</td>
+                        <td class="px-4 py-3 border-b">
+                            <span class="px-2 py-1 rounded-full text-xs ${statusColor}">
+                                ${work.payStatus}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // دالة عرض المصاريف
+        function renderExpenses() {
+            const container = document.getElementById('expList');
+            const recentExpenses = data.expenses.slice().reverse();
+            
+            if (recentExpenses.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-8 text-gray-500">
+                        <i class="fas fa-gas-pump text-4xl mb-4"></i>
+                        <p>لا توجد مصاريف مسجلة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            recentExpenses.forEach(exp => {
+                const icon = exp.type === 'ديزل' ? '⛽' :
+                           exp.type === 'زيت' ? '🛢️' :
+                           exp.type === 'صيانة' ? '🔧' :
+                           exp.type === 'قطع غيار' ? '⚙️' :
+                           exp.type === 'عمال' ? '👷' : '📝';
+                
+                html += `
+                    <div class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-xl hover:shadow-md transition">
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <div class="text-2xl">${icon}</div>
+                            <div>
+                                <div class="font-medium">${exp.type}</div>
+                                <div class="text-sm text-gray-500">${exp.date} ${exp.details ? '• ' + exp.details : ''}</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 space-x-reverse">
+                            <span class="text-lg font-bold text-red-600">${exp.amount.toLocaleString()}</span>
+                            <button onclick="deleteExpense(${exp.id})" class="text-gray-400 hover:text-red-500 transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // دالة حذف مصروف
+        function deleteExpense(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+                data.expenses = data.expenses.filter(exp => exp.id !== id);
+                save();
+                renderExpenses();
+                showNotification('تم حذف المصروف', 'success');
+            }
+        }
+
+        // دالة حذف جميع المصاريف
+        function clearExpenses() {
+            if (data.expenses.length === 0) {
+                showNotification('لا توجد مصاريف لحذفها', 'info');
+                return;
+            }
+            
+            if (confirm(`هل أنت متأكد من حذف جميع المصاريف (${data.expenses.length} مصروف)?`)) {
+                data.expenses = [];
+                save();
+                renderExpenses();
+                showNotification('تم حذف جميع المصاريف', 'success');
+            }
+        }
+
+        // دالة عرض سجل الزبائن
+        function renderHistory() {
+            const query = document.getElementById('searchClient').value.toLowerCase();
+            const container = document.getElementById('clientHistoryList');
+            
+            // تجميع العمل حسب اسم الزبون
+            const grouped = data.work.reduce((acc, curr) => {
+                if (!acc[curr.name]) {
+                    acc[curr.name] = {
+                        items: [],
+                        phone: curr.phone,
+                        total: 0,
+                        debt: 0,
+                        lastDate: curr.date
+                    };
+                }
+                acc[curr.name].items.push(curr);
+                
+                const itemTotal = curr.hours * curr.price;
+                acc[curr.name].total += itemTotal;
+                
+                if (curr.payStatus === 'أجل') {
+                    acc[curr.name].debt += itemTotal;
+                } else if (curr.payStatus === 'نصف') {
+                    acc[curr.name].debt += itemTotal / 2;
+                }
+                
+                if (curr.date > acc[curr.name].lastDate) {
+                    acc[curr.name].lastDate = curr.date;
+                }
+                
+                return acc;
+            }, {});
+            
+            // تحويل إلى مصفوفة وترتيب حسب تاريخ آخر معاملة
+            const clientsArray = Object.keys(grouped)
+                .filter(name => name.toLowerCase().includes(query))
+                .map(name => ({
+                    name,
+                    ...grouped[name]
+                }))
+                .sort((a, b) => new Date(b.lastDate) - new Date(a.lastDate));
+            
+            if (clientsArray.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-12 text-gray-500">
+                        <i class="fas fa-users text-4xl mb-4"></i>
+                        <p>${query ? 'لا توجد نتائج للبحث' : 'لا توجد عملاء مسجلين بعد'}</p>
+                        ${query ? '<p class="text-sm mt-2">جرب البحث باسم آخر</p>' : ''}
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            clientsArray.forEach(client => {
+                const debtPercentage = client.total > 0 ? Math.round((client.debt / client.total) * 100) : 0;
+                const lastTransaction = client.items[client.items.length - 1];
+                
+                html += `
+                    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition">
+                        <div class="p-5 border-b border-gray-100">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-lg text-gray-800">${client.name}</h4>
+                                    <div class="flex items-center mt-2 space-x-4 space-x-reverse">
+                                        ${client.phone ? `
+                                            <div class="flex items-center text-sm text-gray-600">
+                                                <i class="fas fa-phone mr-2"></i>
+                                                ${client.phone}
+                                            </div>
+                                        ` : ''}
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <i class="fas fa-calendar mr-2"></i>
+                                            آخر معاملة: ${client.lastDate}
+                                        </div>
+                                        <div class="flex items-center text-sm text-gray-600">
+                                            <i class="fas fa-list mr-2"></i>
+                                            عدد المعاملات: ${client.items.length}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2 space-x-reverse">
+                                    ${client.phone ? `
+                                        <button onclick="window.open('tel:${client.phone}')" 
+                                                class="bg-blue-100 hover:bg-blue-200 text-blue-700 p-2 rounded-lg transition">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    ` : ''}
+                                    ${client.phone ? `
+                                        <button onclick="shareClientWA('${client.name}')" 
+                                                class="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-lg transition">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </button>
+                                    ` : ''}
+                                    <button onclick="viewClientDetails('${client.name}')" 
+                                            class="bg-purple-100 hover:bg-purple-200 text-purple-700 p-2 rounded-lg transition">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-5">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                                    <div class="text-sm text-gray-500 mb-1">إجمالي المبلغ</div>
+                                    <div class="text-2xl font-bold text-gray-800">${client.total.toLocaleString()}</div>
+                                    <div class="text-xs text-gray-400">دينار</div>
+                                </div>
+                                <div class="text-center p-4 ${client.debt > 0 ? 'bg-red-50' : 'bg-green-50'} rounded-lg">
+                                    <div class="text-sm ${client.debt > 0 ? 'text-red-500' : 'text-green-500'} mb-1">المبلغ المتبقي</div>
+                                    <div class="text-2xl font-bold ${client.debt > 0 ? 'text-red-600' : 'text-green-600'}">
+                                        ${client.debt.toLocaleString()}
+                                    </div>
+                                    <div class="text-xs ${client.debt > 0 ? 'text-red-400' : 'text-green-400'}">
+                                        ${client.debt > 0 ? debtPercentage + '% من الإجمالي' : 'مدفوع بالكامل'}
+                                    </div>
+                                </div>
+                                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                    <div class="text-sm text-blue-500 mb-1">متوسط المعاملة</div>
+                                    <div class="text-2xl font-bold text-blue-600">
+                                        ${Math.round(client.total / client.items.length).toLocaleString()}
+                                    </div>
+                                    <div class="text-xs text-blue-400">دينار</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-sm text-gray-600">
+                                <div class="font-medium mb-2">آخر الخدمات:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${client.items.slice(-3).reverse().map(item => `
+                                        <span class="px-3 py-1 bg-gray-100 rounded-full text-xs">
+                                            ${item.date} - ${item.service} (${item.hours} ساعة)
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updateClientStats();
+        }
+
+        // دالة تحديث إحصائيات الزبائن
+        function updateClientStats() {
+            const grouped = data.work.reduce((acc, curr) => {
+                if (!acc[curr.name]) {
+                    acc[curr.name] = {
+                        total: 0,
+                        debt: 0
+                    };
+                }
+                
+                const itemTotal = curr.hours * curr.price;
+                acc[curr.name].total += itemTotal;
+                
+                if (curr.payStatus === 'أجل') {
+                    acc[curr.name].debt += itemTotal;
+                } else if (curr.payStatus === 'نصف') {
+                    acc[curr.name].debt += itemTotal / 2;
+                }
+                
+                return acc;
+            }, {});
+            
+            const clientNames = Object.keys(grouped);
+            const paidClients = clientNames.filter(name => grouped[name].debt === 0).length;
+            const debtClients = clientNames.filter(name => grouped[name].debt > 0).length;
+            
+            document.getElementById('totalClients').innerText = clientNames.length;
+            document.getElementById('paidClients').innerText = paidClients;
+            document.getElementById('debtClients').innerText = debtClients;
+        }
+
+        // دالة عرض تفاصيل الزبون
+        function viewClientDetails(clientName) {
+            const clientWork = data.work.filter(w => w.name === clientName);
+            const clientPhone = clientWork[0]?.phone || 'غير متوفر';
+            
+            let totalAmount = 0;
+            let paidAmount = 0;
+            let debtAmount = 0;
+            
+            let workRows = '';
+            clientWork.forEach(work => {
+                const workAmount = work.hours * work.price;
+                totalAmount += workAmount;
+                
+                if (work.payStatus === 'مقدم') {
+                    paidAmount += workAmount;
+                } else if (work.payStatus === 'نصف') {
+                    paidAmount += workAmount / 2;
+                    debtAmount += workAmount / 2;
+                } else {
+                    debtAmount += workAmount;
+                }
+                
+                const statusColor = work.payStatus === 'أجل' ? 'red' : 
+                                  work.payStatus === 'نصف' ? 'yellow' : 'green';
+                
+                workRows += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 border-b">${work.date}</td>
+                        <td class="px-4 py-3 border-b">${work.service}</td>
+                        <td class="px-4 py-3 border-b">${work.location}</td>
+                        <td class="px-4 py-3 border-b">${work.hours} ساعة</td>
+                        <td class="px-4 py-3 border-b">${work.price}</td>
+                        <td class="px-4 py-3 border-b font-bold">${workAmount.toLocaleString()}</td>
+                        <td class="px-4 py-3 border-b">
+                            <span class="px-2 py-1 rounded-full text-xs bg-${statusColor}-100 text-${statusColor}-800">
+                                ${work.payStatus}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('modalClientName').innerText = `تفاصيل الزبون: ${clientName}`;
+            document.getElementById('modalClientContent').innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-xl">
+                            <div class="text-blue-700 text-sm">إجمالي المبلغ</div>
+                            <div class="text-2xl font-bold text-blue-800">${totalAmount.toLocaleString()} دينار</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-xl">
+                            <div class="text-green-700 text-sm">المبلغ المدفوع</div>
+                            <div class="text-2xl font-bold text-green-800">${paidAmount.toLocaleString()} دينار</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-xl">
+                            <div class="text-red-700 text-sm">المبلغ المتبقي</div>
+                            <div class="text-2xl font-bold text-red-800">${debtAmount.toLocaleString()} دينار</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h5 class="font-bold text-gray-700">معلومات الاتصال</h5>
+                            ${clientPhone !== 'غير متوفر' ? `
+                                <div class="flex space-x-2 space-x-reverse">
+                                    <button onclick="window.open('tel:${clientPhone}')" 
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fas fa-phone mr-2"></i>اتصال
+                                    </button>
+                                    <button onclick="shareClientWA('${clientName}')" 
+                                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
+                                        <i class="fab fa-whatsapp mr-2"></i>واتساب
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <p><strong>الهاتف:</strong> ${clientPhone}</p>
+                        <p><strong>عدد المعاملات:</strong> ${clientWork.length}</p>
+                        <p><strong>أول معاملة:</strong> ${clientWork[clientWork.length - 1]?.date}</p>
+                        <p><strong>آخر معاملة:</strong> ${clientWork[0]?.date}</p>
+                    </div>
+                    
+                    <div>
+                        <h5 class="font-bold text-gray-700 mb-4">سجل المعاملات</h5>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full table-auto">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-3 text-right">التاريخ</th>
+                                        <th class="px-4 py-3 text-right">الخدمة</th>
+                                        <th class="px-4 py-3 text-right">المكان</th>
+                                        <th class="px-4 py-3 text-right">الساعات</th>
+                                        <th class="px-4 py-3 text-right">سعر الساعة</th>
+                                        <th class="px-4 py-3 text-right">المبلغ</th>
+                                        <th class="px-4 py-3 text-right">الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${workRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('clientDetailModal').classList.remove('hidden');
+        }
+
+        // دالة إغلاق نافذة تفاصيل الزبون
+        function closeClientModal() {
+            document.getElementById('clientDetailModal').classList.add('hidden');
+        }
+
+        // دالة مشاركة عبر واتساب
+        function shareClientWA(clientName) {
+            const clientWork = data.work.filter(w => w.name === clientName);
+            const clientPhone = clientWork[0]?.phone;
+            
+            if (!clientPhone) {
+                showNotification('لا يوجد رقم هاتف لهذا الزبون', 'error');
+                return;
+            }
+            
+            let totalAmount = 0;
+            let debtAmount = 0;
+            
+            let msg = `*كشف حساب التراكتور*%0A%0A`;
+            msg += `*اسم الزبون:* ${clientName}%0A`;
+            msg += `*التاريخ:* ${new Date().toLocaleDateString('ar-SA')}%0A`;
+            msg += `─────────────────%0A%0A`;
+            msg += `*سجل الأعمال:*%0A`;
+            
+            clientWork.forEach((work, index) => {
+                const workAmount = work.hours * work.price;
+                totalAmount += workAmount;
+                
+                if (work.payStatus !== 'مقدم') {
+                    debtAmount += work.payStatus === 'نصف' ? workAmount / 2 : workAmount;
+                }
+                
+                msg += `${index + 1}. ${work.date} - ${work.service} (${work.hours} ساعة) = ${workAmount} دينار`;
+                msg += work.payStatus !== 'مقدم' ? ` (${work.payStatus})` : '';
+                msg += `%0A`;
+            });
+            
+            msg += `%0A─────────────────%0A`;
+            msg += `*الإجمالي:* ${totalAmount.toLocaleString()} دينار%0A`;
+            
+            if (debtAmount > 0) {
+                msg += `*المبلغ المتبقي:* ${debtAmount.toLocaleString()} دينار%0A`;
+                msg += `─────────────────%0A`;
+                msg += `*يرجى تسديد المبلغ المتبقي*%0A`;
+            } else {
+                msg += `*تم تسديد كامل المبلغ* ✅%0A`;
+            }
+            
+            msg += `%0Aشكراً لتعاملكم معنا 🌾`;
+            
+            window.open(`https://wa.me/${clientPhone}?text=${msg}`);
+        }
+
+        // دالة تصدير جميع الزبائن
+        function exportAllClients() {
+            if (data.work.length === 0) {
+                showNotification('لا توجد بيانات للتصدير', 'error');
+                return;
+            }
+            
+            exportCSV();
+        }
+
+        // النسخ الاحتياطي - استخدم الكود السابق للدوال التالية:
+        // exportData, exportCSV, importData, showNotification, 
+        // updateBackupStats, autoBackup, cleanupOldBackups
         
+        // إضافة event listeners
+        function setupEventListeners() {
+            // تحديث اسم الملف المختار
+            document.getElementById('importFile').addEventListener('change', function(e) {
+                const fileName = e.target.files[0]?.name || 'لم يتم اختيار ملف';
+                document.getElementById('selectedFileName').innerText = `الملف المختار: ${fileName}`;
+            });
+            
+            // تفعيل/تعطيل النسخ التلقائي
+            document.getElementById('autoBackupToggle').addEventListener('click', toggleAutoBackup);
+        }
+
+        // دالة تفعيل/تعطيل النسخ التلقائي
+        function toggleAutoBackup() {
+            autoBackupEnabled = !autoBackupEnabled;
+            localStorage.setItem('auto_backup_enabled', autoBackupEnabled);
+            
+            if (autoBackupEnabled) {
+                document.getElementById('autoBackupToggle').innerHTML = '<i class="fas fa-robot mr-1"></i>إيقاف النسخ التلقائي';
+                showNotification('تم تفعيل النسخ الاحتياطي التلقائي', 'success');
+                autoBackup();
+            } else {
+                document.getElementById('autoBackupToggle').innerHTML = '<i class="fas fa-robot mr-1"></i>تفعيل النسخ التلقائي';
+                showNotification('تم إيقاف النسخ الاحتياطي التلقائي', 'info');
+            }
+        }
+
+        // دالة عرض النسخ الاحتياطية المحفوظة
+        function renderSavedBackups() {
+            const container = document.getElementById('savedBackups');
+            const backups = Object.keys(localStorage)
+                .filter(key => key.startsWith('backup_'))
+                .map(key => {
+                    const timestamp = parseInt(key.split('_')[1]);
+                    return {
+                        key,
+                        date: new Date(timestamp).toLocaleString('ar-SA'),
+                        size: localStorage.getItem(key).length
+                    };
+                })
+                .sort((a, b) => parseInt(b.key.split('_')[1]) - parseInt(a.key.split('_')[1]));
+            
+            if (backups.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-4 text-gray-500">
+                        <i class="fas fa-database text-2xl mb-2"></i>
+                        <p>لا توجد نسخ احتياطية محفوظة</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            backups.forEach(backup => {
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                        <div class="flex items-center space-x-3 space-x-reverse">
+                            <i class="fas fa-database text-blue-500"></i>
+                            <div>
+                                <div class="font-medium">${backup.date}</div>
+                                <div class="text-xs text-gray-500">${(backup.size / 1024).toFixed(2)} KB</div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 space-x-reverse">
+                            <button onclick="restoreBackup('${backup.key}')" 
+                                    class="text-green-600 hover:text-green-800 transition">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button onclick="deleteBackup('${backup.key}')" 
+                                    class="text-red-600 hover:text-red-800 transition">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // دالة استعادة نسخة احتياطية
+        function restoreBackup(key) {
+            if (confirm('هل تريد استعادة هذه النسخة الاحتياطية؟ سيتم استبدال البيانات الحالية.')) {
+                try {
+                    const backupData = JSON.parse(localStorage.getItem(key));
+                    localStorage.setItem('tractor_final_db', JSON.stringify(backupData));
+                    location.reload();
+                } catch (error) {
+                    showNotification('خطأ في استعادة النسخة الاحتياطية', 'error');
+                }
+            }
+        }
+
+        // دالة حذف نسخة احتياطية
+        function deleteBackup(key) {
+            if (confirm('هل تريد حذف هذه النسخة الاحتياطية؟')) {
+                localStorage.removeItem(key);
+                renderSavedBackups();
+                updateBackupStats();
+                showNotification('تم حذف النسخة الاحتياطية', 'success');
+            }
+        }
+
         // تهيئة التبويبات
-        initTabs();
-    });
-</script>
+        function initTabs() {
+            switchTab('work');
+        }
+
+        // دالة عرض إشعارات
+        function showNotification(message, type = 'info') {
+            const icon = type === 'success' ? 'check-circle' :
+                        type === 'error' ? 'exclamation-circle' :
+                        type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+            
+            const color = type === 'success' ? 'bg-green-600' :
+                         type === 'error' ? 'bg-red-600' :
+                         type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600';
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-xl text-white z-50 transform transition-all duration-300 slide-up ${color}`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${icon} mr-3 text-xl"></i>
+                    <span class="font-medium">${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
 </body>
-  </html>
+            </html>
