@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسب التراكتور الزراعي الاحترافي</title>
+    <!-- Tailwind CSS أوفلاين -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* إعدادات تخصيص إضافية */
+        :root {
+            --primary: #2e7d32;
+            --accent: #f57c00;
+            --danger: #d93025;
+        }
+        
+        .btn-whatsapp {
+            background: #25D366;
+        }
+        
+        .btn-call {
+            background: #0288d1;
+        }
+        
+        /* تخصيصات إضافية */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <!-- إضافة أيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans" dir="rtl">
+
+<!-- الهيدر -->
+<header class="bg-green-700 text-white p-4 shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto flex items-center justify-between">
+        <div class="flex items-center space-x-3 space-x-reverse">
+            <i class="fas fa-tractor text-2xl"></i>
+            <h1 class="text-xl font-bold">محاسب التراكتور الزراعي</h1>
+        </div>
+        <button id="backupBtn" class="bg-green-800 hover:bg-green-900 text-white px-4 py-2 rounded-lg text-sm transition">
+            <i class="fas fa-database mr-2"></i>النسخ الاحتياطي
+        </button>
+    </div>
+</header>
+
+<!-- لوحة الإحصائيات -->
+<div class="container mx-auto p-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- إجمالي العمل -->
+        <div class="bg-white rounded-xl shadow p-5 text-center border-r-4 border-green-500">
+            <div class="text-gray-500 text-sm mb-2">
+                <i class="fas fa-money-bill-wave mr-2"></i>إجمالي العمل
+            </div>
+            <div id="statIncome" class="text-3xl font-bold text-green-600">0</div>
+            <div class="text-xs text-gray-400 mt-2">دينار</div>
+        </div>
+        
+        <!-- إجمالي المصاريف -->
+        <div class="bg-white rounded-xl shadow p-5 text-center border-r-4 border-orange-500">
+            <div class="text-gray-500 text-sm mb-2">
+                <i class="fas fa-gas-pump mr-2"></i>إجمالي المصاريف
+            </div>
+            <div id="statExpense" class="text-3xl font-bold text-orange-600">0</div>
+            <div class="text-xs text-gray-400 mt-2">دينار</div>
+        </div>
+        
+        <!-- صافي الربح -->
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow p-5 text-center text-white">
+            <div class="text-green-100 text-sm mb-2">
+                <i class="fas fa-chart-line mr-2"></i>صافي الربح
+            </div>
+            <div id="statNet" class="text-3xl font-bold">0</div>
+            <div class="text-xs text-green-200 mt-2">دينار</div>
+        </div>
+    </div>
+
+    <!-- التبويبات -->
+    <div class="bg-white rounded-xl shadow mb-6 overflow-hidden">
+        <div class="flex border-b">
+            <button onclick="switchTab('work')" 
+                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
+                    id="tabWork">
+                <i class="fas fa-tractor mr-2"></i>أعمال الميدان
+            </button>
+            <button onclick="switchTab('expenses')" 
+                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
+                    id="tabExpenses">
+                <i class="fas fa-gas-pump mr-2"></i>المصاريف
+            </button>
+            <button onclick="switchTab('history')" 
+                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
+                    id="tabHistory">
+                <i class="fas fa-users mr-2"></i>سجل الزبائن
+            </button>
+            <button onclick="switchTab('backup')" 
+                    class="tab-btn flex-1 py-4 px-2 text-center font-medium transition-all"
+                    id="tabBackup">
+                <i class="fas fa-database mr-2"></i>النسخ الاحتياطي
+            </button>
+        </div>
+    </div>
+
+    <!-- محتوى التبويبات -->
+    <div id="workSection" class="tab-content">
+        <!-- ... محتوى قسم الأعمال ... -->
+    </div>
+
+    <div id="expensesSection" class="tab-content hidden">
+        <!-- ... محتوى قسم المصاريف ... -->
+    </div>
+
+    <div id="historySection" class="tab-content hidden">
+        <!-- ... محتوى قسم السجل ... -->
+    </div>
+
+    <!-- قسم النسخ الاحتياطي الجديد -->
+    <div id="backupSection" class="tab-content hidden">
+        <div class="bg-white rounded-xl shadow p-6 mb-4">
+            <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-database text-green-600 mr-3"></i>نظام النسخ الاحتياطي والاستعادة
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- تصدير البيانات -->
+                <div class="border border-gray-200 rounded-lg p-5">
+                    <h4 class="font-bold text-lg mb-4 text-gray-700">
+                        <i class="fas fa-download text-blue-600 mr-2"></i>تصدير البيانات
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">
+                        قم بتحميل نسخة احتياطية من جميع بياناتك لتخزينها بأمان.
+                    </p>
+                    <button onclick="exportData()" 
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
+                        <i class="fas fa-file-export mr-2"></i>تصدير كملف JSON
+                    </button>
+                    <button onclick="exportCSV()" 
+                            class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
+                        <i class="fas fa-file-csv mr-2"></i>تصدير كملف Excel
+                    </button>
+                </div>
+                
+                <!-- استيراد البيانات -->
+                <div class="border border-gray-200 rounded-lg p-5">
+                    <h4 class="font-bold text-lg mb-4 text-gray-700">
+                        <i class="fas fa-upload text-purple-600 mr-2"></i>استيراد البيانات
+                    </h4>
+                    <p class="text-gray-600 mb-4 text-sm">
+                        استرجع البيانات من نسخة احتياطية سابقة.
+                    </p>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">اختر ملف النسخ الاحتياطي</label>
+                        <input type="file" id="importFile" accept=".json,.txt" 
+                               class="w-full p-3 border border-gray-300 rounded-lg">
+                    </div>
+                    <button onclick="importData()" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
+                        <i class="fas fa-file-import mr-2"></i>استيراد البيانات
+                    </button>
+                </div>
+            </div>
+            
+            <!-- إحصائيات النسخ الاحتياطي -->
+            <div class="mt-8 p-5 bg-gray-50 rounded-lg">
+                <h4 class="font-bold text-lg mb-4 text-gray-700">معلومات التخزين</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-3 bg-white rounded-lg shadow">
+                        <div class="text-2xl font-bold text-blue-600" id="backupCount">0</div>
+                        <div class="text-sm text-gray-500">عدد السجلات</div>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-lg shadow">
+                        <div class="text-2xl font-bold text-green-600" id="storageSize">0 KB</div>
+                        <div class="text-sm text-gray-500">حجم التخزين</div>
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    يتم تخزين البيانات محلياً في متصفحك. قم بعمل نسخة احتياطية دورياً.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة النسخ الاحتياطي -->
+<div id="backupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-auto">
+        <!-- ... محتوى النافذة ... -->
+    </div>
+</div>
+
+<script>
+    // وظائف النسخ الاحتياطي
+    function exportData() {
+        const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
+        
+        // إضافة معلومات إضافية
+        const exportData = {
+            ...data,
+            _exportInfo: {
+                date: new Date().toISOString(),
+                version: "2.0",
+                totalRecords: data.work.length + data.expenses.length
+            }
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tractor_backup_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('تم تصدير البيانات بنجاح', 'success');
+    }
+    
+    function exportCSV() {
+        const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
+        
+        // تحويل أعمال الميدان إلى CSV
+        let csvContent = "تاريخ,الزبون,الخدمة,المكان,الساعات,سعر الساعة,المبلغ,الحالة,الهاتف\n";
+        
+        data.work.forEach(work => {
+            const row = [
+                work.date,
+                `"${work.name}"`,
+                work.service,
+                work.location,
+                work.hours,
+                work.price,
+                work.hours * work.price,
+                work.payStatus,
+                work.phone || ''
+            ].join(',');
+            csvContent += row + '\n';
+        });
+        
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tractor_work_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('تم تصدير ملف Excel بنجاح', 'success');
+    }
+    
+    function importData() {
+        const fileInput = document.getElementById('importFile');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            showNotification('يرجى اختيار ملف', 'error');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // التحقق من صحة البيانات
+                if (!importedData.work || !importedData.expenses) {
+                    throw new Error('تنسيق الملف غير صالح');
+                }
+                
+                if (confirm(`هل تريد استيراد البيانات؟\nالأعمال: ${importedData.work.length}\nالمصاريف: ${importedData.expenses.length}`)) {
+                    localStorage.setItem('tractor_final_db', JSON.stringify(importedData));
+                    location.reload();
+                }
+            } catch (error) {
+                showNotification('خطأ في استيراد الملف: ' + error.message, 'error');
+            }
+        };
+        
+        reader.readAsText(file);
+    }
+    
+    function showNotification(message, type = 'info') {
+        // إنشاء إشعار باستخدام Tailwind
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
+            type === 'success' ? 'bg-green-600' : 
+            type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} mr-3"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+    
+    // تحديث إحصائيات النسخ الاحتياطي
+    function updateBackupStats() {
+        const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
+        const totalRecords = data.work.length + data.expenses.length;
+        const storageSize = JSON.stringify(data).length;
+        
+        document.getElementById('backupCount').textContent = totalRecords.toLocaleString();
+        document.getElementById('storageSize').textContent = `${(storageSize / 1024).toFixed(2)} KB`;
+    }
+    
+    // نسخ احتياطي تلقائي
+    function autoBackup() {
+        const lastBackup = localStorage.getItem('last_auto_backup');
+        const today = new Date().toDateString();
+        
+        if (lastBackup !== today) {
+            const data = JSON.parse(localStorage.getItem('tractor_final_db')) || { work: [], expenses: [] };
+            localStorage.setItem(`backup_${Date.now()}`, JSON.stringify(data));
+            localStorage.setItem('last_auto_backup', today);
+            
+            // الاحتفاظ بـ 7 نسخ فقط
+            cleanupOldBackups();
+        }
+    }
+    
+    function cleanupOldBackups() {
+        const backups = Object.keys(localStorage).filter(key => key.startsWith('backup_'));
+        if (backups.length > 7) {
+            backups.sort().slice(0, backups.length - 7).forEach(key => {
+                localStorage.removeItem(key);
+            });
+        }
+    }
+    
+    // تهيئة عند التحميل
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBackupStats();
+        autoBackup();
+        
+        // تهيئة التبويبات
+        initTabs();
+    });
+</script>
+</body>
+  </html>
