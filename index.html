@@ -6,8 +6,8 @@
     <title>محاسب التراكتور الزراعي الاحترافي</title>
     
     <link rel="manifest" href="manifest.js">
-    <link rel="icon" herf="icon512.png" type="image/png">
-    <link rel="apple-touch-icon" herf="icon512.png">
+    <link rel="icon" href="icon512.png" type="image/png">
+    <link rel="apple-touch-icon" href="icon512.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1287,6 +1287,21 @@
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+    </script>
+     <!-- Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').then(
+                function(registration) {
+                    console.log('Service Worker registered successfully');
+                },
+                function(err) {
+                    console.log('Service Worker registration failed: ', err);
+                }
+            );
+        });
+    }
     </script>
 </body>
             </html>
