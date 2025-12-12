@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحاسب الزراعي الاحترافي</title>
+    <title>محاسب التراكتور الزراعي الاحترافي</title>
     <style>
         :root { 
             --primary: #2e7d32; --accent: #f57c00; --bg: #f1f3f4; 
@@ -56,7 +56,7 @@
 </head>
 <body>
 
-<header>🚜 نظام المحاسب الزراعي</header>
+<header>🚜 محاسب التراكتور الزراعي</header>
 
 <div class="container">
     <div class="dashboard">
@@ -268,7 +268,7 @@
     function shareClientWA(name) {
         const client = data.work.filter(w => w.name === name);
         let debt = client.reduce((s, w) => w.payStatus === 'أجل' ? s + (w.hours * w.price) : s, 0);
-        let msg = `*كشف حساب عمل الجرار*%0A*الزبون:* ${name}%0A------------------%0A`;
+        let msg = `*كشف حساب عمل التراكتور*%0A*الزبون:* ${name}%0A------------------%0A`;
         client.forEach(c => {
             msg += `📅 ${c.date} | ${c.service} | ${c.hours * c.price}%0A`;
         });
