@@ -17,12 +17,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-  
-  /* إضافة شاشة بدء مخصصة إذا كان المتصفح يدعمها */
-  "splash_screen": {
-    "image": "/icon750.png",
-    "imageSize": "750x750"
-  }
-}
+    }, 
 ], 
+} 
