@@ -18,7 +18,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     },
-  ],
   
   /* إضافة شاشة بدء مخصصة إذا كان المتصفح يدعمها */
   "splash_screen": {
@@ -26,3 +25,4 @@
     "imageSize": "750x750"
   }
 }
+], 
