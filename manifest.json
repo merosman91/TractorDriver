@@ -18,22 +18,11 @@
       "type": "image/png",
       "purpose": "any maskable"
     },
-    {
-      "src": "/icon192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    }
   ],
   
   /* إضافة شاشة بدء مخصصة إذا كان المتصفح يدعمها */
   "splash_screen": {
-    "backgroundColor": "#FFFFFF",
     "image": "/icon512.png",
-    "imageSize": "512x512"
+    "imageSize": "750x750"
   }
 }
