@@ -22,7 +22,7 @@
   
   /* إضافة شاشة بدء مخصصة إذا كان المتصفح يدعمها */
   "splash_screen": {
-    "image": "/icon512.png",
+    "image": "/icon750.png",
     "imageSize": "750x750"
   }
 }
