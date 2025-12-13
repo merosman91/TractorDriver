@@ -1,0 +1,39 @@
+{
+  "name": "رفيق المزارع",
+  "short_name": "رفيق المزارع",
+  "description": "نظام محاسبة متكامل لسائق التراكتور",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",  /* تغيير من الأخضر إلى الأبيض */
+  "theme_color": "#2E7D32",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ar",
+  "dir": "rtl",
+  
+  "icons": [
+    {
+      "src": "/icon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    }
+  ],
+  
+  /* إضافة شاشة بدء مخصصة إذا كان المتصفح يدعمها */
+  "splash_screen": {
+    "backgroundColor": "#FFFFFF",
+    "image": "/icon512.png",
+    "imageSize": "512x512"
+  }
+}
